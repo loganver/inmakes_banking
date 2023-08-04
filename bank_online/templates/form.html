@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign up</title>
+</head>
+<body>
+ <h2>Application Form</h2>
+    <form action="{% url 'new' %}" method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="dob">Date of Birth:</label>
+        <input type="date" id="dob" name="dob" required><br><br>
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br><br>
+
+        <label>Gender:</label>
+        <input type="radio" id="male" name="gender" value="Male" required>
+        <label for="male">Male</label>
+        <input type="radio" id="female" name="gender" value="Female" required>
+        <label for="female">Female</label><br><br>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="4" required></textarea><br><br>
+
+        <label for="district">District:</label>
+        <select name="district" id="district">
+            <option value="">Select a District</option>
+            {% for district_item in district_list %}
+            <option value="{{ district_item.id }}">{{ district_item.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="branch">Branch:</label>
+        <select id="branch" name="branch" required>
+            <option value="" disabled selected>Select Branch</option>
+
+        </select><br><br>
+
+        <label for="account-type">Account Type:</label>
+        <select id="account-type" name="account-type" required>
+            <option value="" disabled selected>Select Account Type</option>
+            <option value="Savings Account">Savings Account</option>
+            <option value="Current Account">Current Account</option>
+
+        </select><br><br>
+
+        <label>Materials Provided:</label><br>
+        <input type="checkbox" id="debit-card" name="materials[]" value="Debit Card">
+        <label for="debit-card">Debit Card</label><br>
+        <input type="checkbox" id="credit-card" name="materials[]" value="Credit Card">
+        <label for="credit-card">Credit Card</label><br>
+        <input type="checkbox" id="cheque-book" name="materials[]" value="Cheque Book">
+        <label for="cheque-book">Cheque Book</label><br>
+
+
+        <br><br>
+        <input type="submit" value="Submit">
+        <button type="button" onclick="logout()">Logout</button>
+    </form>
+    {% for msg in messages %}
+     <h2>{{msg}}</h2>
+    {% endfor %}
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#district').on('change', function () {
+            const districtId = $(this).val();
+            console.log('Selected District ID:', districtId);
+            $.ajax({
+                url: '/bankingapp/get_branches/',
+                data: {
+                    'district_id': districtId
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log('Response Data:', data);
+                    $('#branch').empty();
+                    $.each(data, function (index, branch) {
+                        $('#branch').append($('<option>', {
+                            value: branch.id,
+                            text: branch.name
+                        }));
+                    });
+                }
+            });
+        });
+        // Additional debug information for form submission
+        $('#submit-btn').on('click', function () {
+            const districtName = $('#district option:selected').text();
+            const branchName = $('#branch option:selected').text();
+            console.log('Selected District Name:', districtName);
+            console.log('Selected Branch Name:', branchName);
+        });
+    });
+</script>
